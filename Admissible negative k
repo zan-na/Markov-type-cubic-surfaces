@@ -1,0 +1,14 @@
+from sage.rings.all import ZZ
+
+result_array = []
+no = 0
+
+for x in range(1, 9197):
+    if not (-x % 4 == 3) and not (-x % 9 in {3, 6}):
+        solutions_exist = False
+
+        if not solutions_exist:
+            result_array.append(-x)
+            no += 1
+
+print(result_array, "The number is", no)
