@@ -1,0 +1,30 @@
+from sage.all import *
+x,y,z=var('x y z')
+k=9380
+M(x,y,z)=x**2+y**2+z**2-x*y*z-k
+N(x,y,z)=x**2+y**2+z**2+x*y*z
+a,b,c=solve([x**3+3*x**2-k==0],x)
+d= floor(c.rhs().n())
+cn=0
+points=[]
+delta(x,y,z)=(1+y**2-x**2-z**2)**2-4*(x*z-y)**2
+
+for i in range(3, d+1):
+    g=floor(sqrt((k-i**2)//(i+2)))
+    for j in range(i,g+1):
+        solutions = solve(N(i,j,z)==k, z, solution_dict=True)
+        integer_solutions = [sol[z] for sol in solutions if sol[z].is_integer() and sol[z]>=g]
+        if integer_solutions:
+            point=(-i,j, integer_solutions[0])
+            dl=delta(-i,j, integer_solutions[0])
+            print(point)
+            cn=cn+1
+            points.append(point)
+print("Class number is", cn)
+
+
+marked_points = sum([point3d(points[n], color='red', size=10) for n in range(0, cn)])
+bound=120
+surface =implicit_plot3d(M(x,y,z), (x,-bound, bound), 
+    (y,-bound, bound), (z,-bound, bound))
+show(surface + marked_points)
