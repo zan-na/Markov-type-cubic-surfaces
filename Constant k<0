@@ -1,0 +1,58 @@
+from sage.all import *
+x,y,z=var('x y z')
+
+Vone(x,y,z)=y*z-x
+Vtwo(x,y,z)=x*z-y
+Vthree(x,y,z)=y*x-z
+
+f(x)=log((x+sqrt(x^2-4))/2)
+term(x,y,z)=(3/pi^2)*(f(x)+f(y)-f(z))/(f(x)*f(y)*f(z))
+iterm(x,y,z)=(3/pi^2)*(1/(f(x)*f(y)))
+
+fundsol=[[4, 5, 6]] #k=-43
+
+allsol=set(tuple(sol) for sol in fundsol) 
+
+
+finalC=0
+
+for sol in fundsol:
+    p=sorted([sol[0],sol[1], Vthree(sol[0],sol[1],sol[2])])
+    allsol.add(tuple(p))
+
+    nodes=[sol, p]
+
+    if sol[0]==sol[1]:
+        if p[0]==p[1]:
+            C=(iterm(sol[0],sol[1],sol[2]))/2+(iterm(p[0],p[1],p[2]))/2
+        else:
+            C=(iterm(sol[0],sol[1],sol[2]))/2+iterm(p[0],p[1],p[2])
+    else:
+        C=iterm(sol[0],sol[1],sol[2])+iterm(p[0],p[1],p[2])+term(sol[0],sol[1],sol[2])+term(p[0],p[1],p[2])
+   
+    Cprev=0
+
+    epsilon=10^(-8)
+
+    while (abs(C-Cprev)>epsilon):
+        Cprev=C
+        newnodes=[]
+        for n in nodes: 
+            m=[n[0],n[2],Vtwo(n[0],n[1],n[2])]
+            l=[n[1],n[2],Vone(n[0],n[1],n[2])]
+            for i in [m,l]:
+                if tuple(i) not in allsol:
+                    allsol.add(tuple(i))
+                    newnodes.append(i)
+                    if i[0]==i[1]:
+                        C=C+(term(i[0],i[1],i[2]))/2
+                    else:
+                        C=C+term(i[0],i[1],i[2])
+                    #print(float(C))
+        nodes=newnodes
+    finalC=finalC+C
+       
+print(float(finalC))
+finalC=24*finalC
+
+print(float(finalC))
