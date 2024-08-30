@@ -1,0 +1,53 @@
+from sage.all import *
+x,y,z=var('x y z')
+
+Vone(x,y,z)=y*z-x
+Vtwo(x,y,z)=x*z-y
+Vthree(x,y,z)=y*x-z
+
+f(x)=log((x+sqrt(x^2-4))/2)
+term(x,y,z)=(3/pi^2)*(f(x)+f(y)-f(z))/(f(x)*f(y)*f(z))
+iterm(x,y,z)=(3/pi^2)*(1/(f(x)*f(y)))
+
+fundsol=[[-3, 6, 52], [-4, 10, 43], [-6, 18, 25], [-7, 8, 38], [-7, 10, 34], [-8, 14, 25]] #k=3685
+
+finalC=0
+
+for sol in fundsol:
+    one=sorted([abs(Vone(sol[0],sol[1],sol[2])),abs(sol[1]),abs(sol[2])])
+    two=sorted([abs(sol[0]),abs(Vtwo(sol[0],sol[1],sol[2])),abs(sol[2])])
+    three=sorted([abs(sol[0]),abs(sol[1]),abs(Vthree(sol[0],sol[1],sol[2]))])
+
+    nodes=[]
+    
+    for node in [one,two,three]:
+        if node not in nodes:
+            nodes.append(node)      
+    
+    C=(sum(iterm(g[0],g[1])/2+term(g[0],g[1],g[2])/2 if g[0]==g[1] else iterm(g[0],g[1])+term(g[0],g[1],g[2]) for g in nodes))
+    Cprev=0
+
+    epsilon=10^(-8)
+    
+    while (abs(C-Cprev)>epsilon):
+        Cprev=C
+        newnodes=[]
+        for n in nodes: 
+            m=[n[0],n[2],Vtwo(n[0],n[1],n[2])]
+            l=[n[1],n[2],Vone(n[0],n[1],n[2])]
+            images=[]
+            for i in [m,l]:
+                if i not in images:
+                    images.append(i)
+                    newnodes.append(i)
+                    if i[0]==i[1]:
+                        C=C+(term(i[0],i[1],i[2]))/2
+                    else:
+                        C=C+term(i[0],i[1],i[2])
+        nodes=newnodes
+    finalC=finalC+C
+       
+print(float(finalC))
+finalC=24*finalC
+
+print(float(finalC))
